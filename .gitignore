@@ -1,0 +1,24 @@
+# Python / backend
+backend/.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.log
+
+# Environment files
+backend/.env
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# Editor/system
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
