@@ -46,6 +46,17 @@ Key endpoints (prefix `/api`):
    VITE_API_URL=http://localhost:8000/api
    ```
 
+## Docker
+1. Ensure you have Docker and Docker Compose installed.
+2. Build and run the stack (Postgres, backend, frontend):
+   ```bash
+   docker compose up --build
+   ```
+3. Frontend will be available at `http://localhost:4173` (or your host IP); API at `http://localhost:8000/api`.
+4. Environment overrides:
+   - Backend CORS origins are set in `docker-compose.yml` (`CORS_ORIGINS`). Add your host/IP:port if accessing from another device.
+   - Frontend API base can be set via `VITE_API_URL` build arg/env in `docker-compose.yml` (defaults to the host API URL). If your host IP changes, update it and rebuild the frontend: `docker compose build frontend`.
+
 ## Project layout
 - `backend/app/main.py` – FastAPI app + routers
 - `backend/app/models.py` – SQLAlchemy models (users, categories, expenses, budgets)
@@ -54,4 +65,5 @@ Key endpoints (prefix `/api`):
 
 ## Notes
 - Data is scoped by `owner_id`; the seed script creates a demo user with ID `1` used by the front-end by default.
-- Tables auto-create on startup; for production, add migrations (Alembic) and proper auth.
+- Tables auto-create on startup; Alembic migrations are provided for controlled upgrades/rollbacks.
+- Authentication: simple email/password + bearer token is included for demos; harden before production (password policies, HTTPS, refresh tokens, user roles).
