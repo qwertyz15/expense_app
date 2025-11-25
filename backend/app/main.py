@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .database import Base, db_engine
-from .routers import users, categories, expenses, budgets, reports
+from .routers import users, categories, expenses, budgets, reports, auth
 
 
 app = FastAPI(
@@ -32,6 +32,7 @@ def health_check():
     return {"status": "ok"}
 
 
+app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(users.router, prefix=settings.api_prefix)
 app.include_router(categories.router, prefix=settings.api_prefix)
 app.include_router(expenses.router, prefix=settings.api_prefix)

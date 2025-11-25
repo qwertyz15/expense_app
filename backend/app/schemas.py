@@ -14,6 +14,24 @@ class UserCreate(UserBase):
     pass
 
 
+class UserRegister(UserBase):
+    password: str = Field(..., min_length=6)
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    user_id: Optional[int] = None
+
+
 class User(UserBase):
     id: int
     created_at: datetime

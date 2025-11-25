@@ -5,27 +5,31 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
+from ..auth import get_current_user
 from ..deps import get_db
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 @router.get("/dashboard", response_model=schemas.DashboardSummary)
-def dashboard(owner_id: int, db: Session = Depends(get_db)):
-    total_spent = db.query(func.coalesce(func.sum(models.Expense.amount), 0)).filter(models.Expense.owner_id == owner_id).scalar()
+def dashboard(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    total_spent = db.query(func.coalesce(func.sum(models.Expense.amount), 0)).filter(models.Expense.owner_id == current_user.id).scalar()
 
     today = date.today()
     month_start = datetime(today.year, today.month, 1)
     month_to_date = (
         db.query(func.coalesce(func.sum(models.Expense.amount), 0))
-        .filter(models.Expense.owner_id == owner_id)
+        .filter(models.Expense.owner_id == current_user.id)
         .filter(models.Expense.spent_at >= month_start)
         .scalar()
     )
 
     budgets = (
         db.query(models.Budget)
-        .filter(models.Budget.owner_id == owner_id)
+        .filter(models.Budget.owner_id == current_user.id)
         .order_by(models.Budget.month.desc())
         .all()
     )
@@ -38,7 +42,7 @@ def dashboard(owner_id: int, db: Session = Depends(get_db)):
             func.coalesce(func.sum(models.Expense.amount), 0).label("total"),
         )
         .join(models.Expense, models.Category.id == models.Expense.category_id)
-        .filter(models.Expense.owner_id == owner_id)
+        .filter(models.Expense.owner_id == current_user.id)
         .group_by(models.Category.id, models.Category.name, models.Category.color)
         .order_by(func.sum(models.Expense.amount).desc())
         .limit(4)
